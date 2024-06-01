@@ -26,12 +26,26 @@ public class CameraMovement : MonoBehaviour
 
         if (!isTopView)
         {
-            if (Input.GetMouseButton(0))
+
+            //for computer
+            if (!Input.touchSupported && Input.GetMouseButton(0))
             {
-
                 targetRot += new Vector3(-Input.GetAxis("Mouse Y"), Input.GetAxis("Mouse X"), 0) * rotationSensitivity;
-                //targetRot += new Vector3(-Input.GetTouch(0).deltaPosition.y , Input.GetTouch(0).deltaPosition.x) * rotationSensitivity;
+            }
 
+            //for mobile       REMOVE COMMENTS FOR BUILD
+            if (/*Input.touchSupported &&*/ Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Moved)
+            {
+                targetRot += new Vector3(-Input.GetTouch(0).deltaPosition.y, Input.GetTouch(0).deltaPosition.x) * rotationSensitivity;
+            }
+
+            if (targetRot.x < 0)
+            {
+                targetRot.x += 0 - targetRot.x;
+            } 
+            else if (targetRot.x > 90)
+            {
+                targetRot.x += 90 - targetRot.x;
             }
 
             transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.Euler(targetRot), 0.03f);
@@ -40,12 +54,6 @@ public class CameraMovement : MonoBehaviour
         else
         {
             transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.Euler(topRotation), 0.03f);
-        }
-
-        if (transform.rotation.x < 0)
-        {
-            //TODO: clamp so x always < 0
-            //transform.rotation = Quaternion.Euler(new Vector3(0.1f, transform.rotation.eulerAngles.y));
         }
         
         transform.position = origin - (5 * transform.forward);
